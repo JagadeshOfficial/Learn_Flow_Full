@@ -2,6 +2,9 @@ package com.lms.auth.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
+
+
 
 @Entity
 @Table(name = "students")
@@ -43,6 +46,10 @@ public class Student {
     @Column(nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
 
+    @ManyToMany(mappedBy = "students")
+    @com.fasterxml.jackson.annotation.JsonBackReference
+    private List<Batch> batches;
+
     public Student() {}
 
     // Getters and setters
@@ -70,4 +77,17 @@ public class Student {
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Student student = (Student) o;
+        return id != null && id.equals(student.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }

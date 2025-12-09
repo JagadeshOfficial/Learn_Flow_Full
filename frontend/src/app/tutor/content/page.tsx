@@ -1,109 +1,115 @@
 
+"use client";
+import { useEffect, useState } from "react";
+import { getCourses, getBatches } from "@/lib/api-courses";
+import { getFolders } from "@/lib/api-folders";
+import { getFiles } from "@/lib/api-files";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Video, FileText, MoreHorizontal } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
-import { UploadContentDialog } from "./components/upload-content-dialog";
-import { tutorCourses, tutorStudents } from "./data";
-
-const uploadedContent = [
-    { id: 'V001', title: 'Introduction to React Hooks', type: 'Video', date: '2023-10-26', course: 'MERN Stack Mastery' },
-    { id: 'D001', title: 'Advanced CSS Selectors (PDF)', type: 'Document', date: '2023-10-24', course: 'MERN Stack Mastery'},
-    { id: 'V002', title: 'Building a REST API with Express', type: 'Video', date: '2023-10-22', course: 'MERN Stack Mastery' },
-    { id: 'D002', title: 'State Management Patterns (PPT)', type: 'Document', date: '2023-10-20', course: 'Python for Data Analytics' },
-]
 
 export default function TutorContentPage() {
+  const [courses, setCourses] = useState<any[]>([]);
+  const [selectedCourse, setSelectedCourse] = useState<any>(null);
+  const [batches, setBatches] = useState<any[]>([]);
+  const [selectedBatch, setSelectedBatch] = useState<any>(null);
+  const [folders, setFolders] = useState<any[]>([]);
+  const [selectedFolder, setSelectedFolder] = useState<any>(null);
+  const [files, setFiles] = useState<any[]>([]);
+
+
+  // Fetch all courses (like admin)
+  useEffect(() => {
+    fetch('http://localhost:8081/api/courses')
+      .then(res => res.json())
+      .then(data => setCourses(Array.isArray(data) ? data : []));
+  }, []);
+
+  // Fetch batches for selected course
+  useEffect(() => {
+    if (selectedCourse) {
+      getBatches(selectedCourse.id).then((data) => setBatches(Array.isArray(data) ? data : []));
+      setSelectedBatch(null);
+      setFolders([]);
+      setSelectedFolder(null);
+      setFiles([]);
+    }
+  }, [selectedCourse]);
+
+  // Fetch folders for selected batch
+  useEffect(() => {
+    if (selectedBatch) {
+      getFolders(selectedBatch.id).then((data) => setFolders(Array.isArray(data) ? data : []));
+      setSelectedFolder(null);
+      setFiles([]);
+    }
+  }, [selectedBatch]);
+
+  // Fetch files for selected folder
+  useEffect(() => {
+    if (selectedFolder) {
+      getFiles(selectedFolder.id).then((data) => setFiles(Array.isArray(data) ? data : []));
+    }
+  }, [selectedFolder]);
+
   return (
-    <div>
-      <header className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-4xl font-bold font-headline tracking-tighter">Content Management</h1>
-          <p className="text-lg text-muted-foreground mt-2">
-            Upload and manage your video lectures and reference materials.
-          </p>
-        </div>
-        <div className="flex gap-2">
-            <UploadContentDialog 
-                uploadType="Document" 
-                courses={tutorCourses} 
-                students={tutorStudents}
-            >
-                <Button variant="outline">
-                    <FileText className="mr-2 h-4 w-4" />
-                    Upload Document
-                </Button>
-            </UploadContentDialog>
-            <UploadContentDialog 
-                uploadType="Video" 
-                courses={tutorCourses} 
-                students={tutorStudents}
-            >
-                <Button>
-                    <Video className="mr-2 h-4 w-4" />
-                    Upload Video
-                </Button>
-            </UploadContentDialog>
-        </div>
+    <div className="max-w-6xl mx-auto py-8">
+      <header className="mb-8">
+        <h1 className="text-4xl font-bold font-headline tracking-tighter">Manage Content</h1>
+        <p className="text-lg text-muted-foreground mt-2">View and manage your course content, batches, folders, and files.</p>
       </header>
-      <main>
-        <Card>
-          <CardHeader>
-            <CardTitle>Uploaded Content</CardTitle>
-            <CardDescription>A list of your recently uploaded materials.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Course</TableHead>
-                  <TableHead>Upload Date</TableHead>
-                  <TableHead><span className="sr-only">Actions</span></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {uploadedContent.map(item => (
-                  <TableRow key={item.id}>
-                    <TableCell className="font-medium">{item.title}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="flex items-center w-fit gap-1">
-                        {item.type === 'Video' ? <Video className="h-3 w-3"/> : <FileText className="h-3 w-3"/>}
-                        {item.type}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{item.course}</TableCell>
-                    <TableCell>{item.date}</TableCell>
-                    <TableCell className="text-right">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                                <span className="sr-only">Open menu</span>
-                                <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                            <DropdownMenuItem>Edit Details</DropdownMenuItem>
-                            <DropdownMenuItem>View Analytics</DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      </main>
+
+      <section className="grid gap-6">
+        {/* Courses */}
+        <div>
+          <h2 className="text-xl font-semibold mb-2">Courses</h2>
+          <div className="flex gap-2 flex-wrap">
+            {courses.map((course: any) => (
+              <Button key={course.id} variant={selectedCourse?.id === course.id ? "default" : "outline"} onClick={() => setSelectedCourse(course)}>
+                {course.title}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {/* Batches */}
+        {selectedCourse && (
+          <div>
+            <h2 className="text-xl font-semibold mb-2">Batches</h2>
+            <div className="flex gap-2 flex-wrap">
+              {batches.map((batch: any) => (
+                <Button key={batch.id} variant={selectedBatch?.id === batch.id ? "default" : "outline"} onClick={() => setSelectedBatch(batch)}>
+                  {batch.name}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Folders */}
+        {selectedBatch && (
+          <div>
+            <h2 className="text-xl font-semibold mb-2">Folders</h2>
+            <div className="flex gap-2 flex-wrap">
+              {folders.map((folder: any) => (
+                <Button key={folder.id} variant={selectedFolder?.id === folder.id ? "default" : "outline"} onClick={() => setSelectedFolder(folder)}>
+                  {folder.name}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Files */}
+        {selectedFolder && (
+          <div>
+            <h2 className="text-xl font-semibold mb-2">Files</h2>
+            <ul className="list-disc ml-5 text-sm">
+              {files.map((file: any) => (
+                <li key={file.id}>{file.name}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </section>
     </div>
   );
 }

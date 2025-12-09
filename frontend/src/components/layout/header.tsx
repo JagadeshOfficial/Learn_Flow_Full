@@ -19,15 +19,17 @@ import {
 export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center">
-        <Link href="/" className="flex items-center gap-2 mr-6">
-          <GraduationCap className="h-6 w-6 text-primary" />
-          <h1 className="text-xl font-headline font-semibold text-primary">
-            LearnFlow
-          </h1>
-        </Link>
-        <div className="hidden md:flex flex-grow items-center justify-end gap-4">
-          <MainNav />
+      <div className="container mx-auto flex h-16 items-center justify-start gap-4">
+        <div className="flex items-center gap-6 flex-1">
+          <Link href="/" className="flex items-center gap-2">
+            <GraduationCap className="h-6 w-6 text-primary" />
+            <h1 className="text-xl font-headline font-semibold text-primary">LearnFlow</h1>
+          </Link>
+          <div className="hidden md:flex items-center ml-6">
+            <MainNav />
+          </div>
+        </div>
+        <div className="hidden md:flex items-center gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button>Sign In</Button>

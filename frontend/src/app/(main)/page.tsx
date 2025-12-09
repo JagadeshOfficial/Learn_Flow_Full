@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import Image from 'next/image'
 import Link from 'next/link'
 import { coursesData } from '@/lib/placeholder-data'
+import { tutorCourses } from '../tutor/content/data'
 import { Badge } from '@/components/ui/badge'
 
 const features = [
@@ -76,7 +77,7 @@ export default function Home() {
     <div className="flex flex-col min-h-full space-y-16 md:space-y-24">
       {/* Hero Section */}
       <section className="py-12 md:py-24">
-        <div className="container mx-auto grid md:grid-cols-2 items-center gap-12">
+        <div className="container mx-auto max-w-7xl px-6 lg:px-12 grid md:grid-cols-2 items-center gap-12">
           <div className="space-y-6 text-center md:text-left">
             <h1 className="text-4xl md:text-6xl font-bold font-headline tracking-tighter">
               Unlock Your Potential with <span className="text-primary">LearnFlow</span>
@@ -98,12 +99,12 @@ export default function Home() {
               </Button>
             </div>
           </div>
-          <div className="relative h-64 md:h-auto md:aspect-square">
+          <div className="relative h-64 md:h-auto md:aspect-square flex justify-end">
             <Image 
                 src="https://images.unsplash.com/photo-1543269865-cbf427effbad?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8dGVhbSUyMGNvbGxhYm9yYXRpb258ZW58MHx8fHwxNzYzMDk3ODE4fDA&ixlib=rb-4.1.0&q=80&w=1080"
                 alt="Collaborative learning environment"
                 fill
-                className="object-cover rounded-xl shadow-2xl"
+                className="object-cover rounded-xl shadow-2xl w-full h-full"
                 data-ai-hint="team collaboration"
             />
           </div>
@@ -178,6 +179,40 @@ export default function Home() {
                         </Button>
                     </CardFooter>
                 </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* All Tutor Courses Section */}
+      <section id="all-tutor-courses" className="py-12 md:py-24 bg-muted/30">
+        <div className="container mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold font-headline mb-4">All Tutor Courses</h2>
+          <p className="max-w-2xl mx-auto text-lg text-muted-foreground mb-12">Browse all courses currently offered by tutors.</p>
+          <div className="grid gap-8 md:grid-cols-3 w-full max-w-6xl mx-auto">
+            {tutorCourses.map((course) => (
+              <Card key={course.id} className="flex flex-col text-left overflow-hidden transition-transform duration-300 ease-in-out hover:-translate-y-2 hover:shadow-2xl">
+                <CardHeader className="p-0">
+                  <div className="relative aspect-video bg-slate-100">
+                    {/* use a simple img for tutor course images */}
+                    {course.image && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={course.image} alt={course.title} className="w-full h-full object-cover" />
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6 flex-grow">
+                  <CardTitle className="font-headline text-xl mb-3">{course.title}</CardTitle>
+                </CardContent>
+                <CardFooter>
+                  <div className="w-full flex items-center gap-2">
+                    <Badge variant="outline">{course.batches.length} batches</Badge>
+                    <Button asChild className="ml-auto group" size="sm">
+                      <Link href={`/tutor/courses`}>View</Link>
+                    </Button>
+                  </div>
+                </CardFooter>
+              </Card>
             ))}
           </div>
         </div>

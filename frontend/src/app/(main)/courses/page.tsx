@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Clock, BookOpen, ArrowRight, DollarSign } from 'lucide-react';
 import { coursesData } from '@/lib/placeholder-data';
+import { tutorCourses } from '../../tutor/content/data';
 import type { Course } from '@/lib/placeholder-data';
 
 function CourseCard({ course }: { course: Course }) {
@@ -82,6 +83,39 @@ export default function CoursesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {coursesData.map((course) => (
             <CourseCard key={course.id} course={course} />
+          ))}
+
+          {tutorCourses.map((tCourse) => (
+            <Card key={tCourse.id} className="flex flex-col overflow-hidden transition-transform duration-300 ease-in-out hover:-translate-y-2 hover:shadow-2xl">
+              <CardHeader className="p-0">
+                <div className="relative aspect-video bg-slate-100">
+                  {tCourse.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={tCourse.image} alt={tCourse.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-muted-foreground">No image</div>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent className="p-6 flex-grow">
+                <CardTitle className="font-headline text-xl mb-3">{tCourse.title}</CardTitle>
+                <div className="flex justify-between text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <span>{tCourse.batches.length} Batches</span>
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter className="flex flex-col items-start gap-4 p-6 pt-0">
+                <div className='w-full flex justify-between items-center border-t pt-4'>
+                  <div />
+                  <Button asChild className="group">
+                    <Link href={`/tutor/courses?course=${tCourse.id}`}>
+                      Manage <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </Link>
+                  </Button>
+                </div>
+              </CardFooter>
+            </Card>
           ))}
         </div>
       </div>

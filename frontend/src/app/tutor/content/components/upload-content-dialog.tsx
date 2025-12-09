@@ -23,6 +23,7 @@ export function UploadContentDialog({ children, uploadType, courses, students }:
     const [courseId, setCourseId] = useState<string | null>(null);
     const [assignmentType, setAssignmentType] = useState('all');
     const [studentId, setStudentId] = useState<string | null>(null);
+    const [batchId, setBatchId] = useState<string | null>(null);
     const { toast } = useToast();
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,6 +46,9 @@ export function UploadContentDialog({ children, uploadType, courses, students }:
         formData.append("assignmentType", assignmentType);
         if (assignmentType === "specific" && studentId) {
             formData.append("studentId", studentId);
+        }
+        if (assignmentType === "batch" && batchId) {
+            formData.append("batchId", batchId);
         }
 
         try {
@@ -114,11 +118,32 @@ export function UploadContentDialog({ children, uploadType, courses, students }:
                                 <Label htmlFor="r1">All Students in Course</Label>
                             </div>
                             <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="batch" id="r3" />
+                                <Label htmlFor="r3">A Batch / Group</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
                                 <RadioGroupItem value="specific" id="r2" />
                                 <Label htmlFor="r2">A Specific Student</Label>
                             </div>
                         </RadioGroup>
                     </div>
+
+                    {assignmentType === 'batch' && courseId && (
+                        <div className="grid w-full max-w-sm items-center gap-1.5">
+                            <Label htmlFor="batch">Batch / Group</Label>
+                            <Select onValueChange={setBatchId}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a batch" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {courses.find(c => c.id === courseId)?.batches.map(b => (
+                                        <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
+
                     {assignmentType === 'specific' && (
                         <div className="grid w-full max-w-sm items-center gap-1.5">
                             <Label htmlFor="student">Student</Label>

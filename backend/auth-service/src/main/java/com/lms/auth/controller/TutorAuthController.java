@@ -1,3 +1,5 @@
+
+        // (Removed misplaced method, will add inside class below)
 package com.lms.auth.controller;
 
 import com.lms.auth.dto.*;
@@ -21,6 +23,27 @@ import java.util.Optional;
 @RequestMapping("/api/v1/tutor")
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"}, maxAge = 3600)
 public class TutorAuthController {
+    /**
+     * Get tutor info by email (for internal service use)
+     * GET /api/v1/tutor/by-email?email=...
+     */
+    @GetMapping("/by-email")
+    public ResponseEntity<?> getTutorByEmail(@RequestParam("email") String email) {
+        Optional<Tutor> tutorOpt = tutorService.findByEmail(email);
+        if (tutorOpt.isPresent()) {
+            Tutor tutor = tutorOpt.get();
+            Map<String, Object> body = new HashMap<>();
+            body.put("id", tutor.getId());
+            body.put("email", tutor.getEmail());
+            body.put("firstName", tutor.getFirstName());
+            body.put("lastName", tutor.getLastName());
+            body.put("status", tutor.getStatus());
+            body.put("verified", tutor.getVerified());
+            return ResponseEntity.ok(body);
+        } else {
+            return ResponseEntity.status(404).body(Map.of("error", "Tutor not found"));
+        }
+    }
 
     @Autowired
     private TutorService tutorService;

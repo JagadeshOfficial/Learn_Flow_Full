@@ -1,7 +1,8 @@
-'use client'
+"use client"
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useState } from 'react'
 import {
   GraduationCap,
   LayoutDashboard,
@@ -17,16 +18,22 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const navLinks = [
+  const navLinks = [
   { href: '/tutor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/tutor/content', label: 'Content', icon: BookCopy },
+  { href: '/tutor/courses', label: 'Courses', icon: BookCopy },
+  { href: '/tutor/content', label: 'Content', icon: FileText },
   { href: '/tutor/tests', label: 'Tests', icon: PenSquare },
   { href: '/tutor/sessions', label: 'Sessions', icon: Calendar },
-  
 ]
+
+import { tutorCourses } from '../content/data'
 
 export function TutorSidebar() {
   const pathname = usePathname()
+  const [coursesOpen, setCoursesOpen] = useState(false)
+  const [courses, setCourses] = useState(tutorCourses)
+  const [expandedCourse, setExpandedCourse] = useState<string | null>(null)
+  const [newBatchName, setNewBatchName] = useState('')
 
   return (
     <aside className="w-64 flex-shrink-0 border-r bg-background flex flex-col fixed top-0 left-0 h-full">
@@ -47,7 +54,7 @@ export function TutorSidebar() {
                 target={link.href.startsWith('/') ? '_self' : '_blank'}
                 className={cn(
                   'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
-                  pathname.startsWith(link.href)
+                  (pathname ?? '').startsWith(link.href)
                     ? 'bg-primary text-primary-foreground'
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 )}
@@ -57,6 +64,8 @@ export function TutorSidebar() {
               </Link>
             </li>
           ))}
+
+          {/* Courses collapsible section removed - navigation now via /tutor/courses page */}
         </ul>
       </nav>
     </aside>

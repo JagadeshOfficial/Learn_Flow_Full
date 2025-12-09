@@ -1,4 +1,7 @@
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+
+"use client";
+
+"use client";
 import { Button } from "@/components/ui/button";
 import { Check, X, Clock, PlusCircle } from "lucide-react";
 
@@ -17,51 +20,119 @@ const pendingSubmissions = [
     },
 ]
 
+
+import { useEffect, useState } from "react";
+import { getCourses, getBatches } from "@/lib/api-courses";
+import { getFolders } from "@/lib/api-folders";
+import { getFiles } from "@/lib/api-files";
+
+
 export default function TutorDashboard() {
-  return (
-    <div>
-    <header className="flex items-center justify-between mb-8">
-        <div>
-            <h1 className="text-4xl font-bold font-headline tracking-tighter">Tutor Dashboard</h1>
-            <p className="text-lg text-muted-foreground mt-2">
-            Review submissions and manage your courses.
-            </p>
-        </div>
-        <Button>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Create New Course
-        </Button>
-    </header>
-    <section>
-        <h2 className="text-2xl font-headline font-semibold mb-4">Pending Submissions</h2>
-        <div className="space-y-4">
-            {pendingSubmissions.map(sub => (
-                <Card key={sub.student + sub.assignment}>
-                    <CardHeader>
-                        <CardTitle>{sub.assignment}</CardTitle>
-                        <CardDescription>{sub.student} - {sub.course}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex items-center text-sm text-muted-foreground">
-                            <Clock className="mr-2 h-4 w-4" />
-                            Submitted {sub.submittedAt}
+    "use client";
+    const [courses, setCourses] = useState<any[]>([]);
+    const [selectedCourse, setSelectedCourse] = useState<any>(null);
+    const [batches, setBatches] = useState<any[]>([]);
+    const [selectedBatch, setSelectedBatch] = useState<any>(null);
+    const [folders, setFolders] = useState<any[]>([]);
+    const [selectedFolder, setSelectedFolder] = useState<any>(null);
+    const [files, setFiles] = useState<any[]>([]);
+
+    // Fetch tutor's courses (filtered by tutorId)
+    useEffect(() => {
+        const tutorId = localStorage.getItem('tutorId');
+        if (!tutorId) return;
+        fetch(`http://localhost:8081/courses/tutor/${encodeURIComponent(tutorId)}`)
+            .then(res => res.json())
+            .then(data => setCourses(Array.isArray(data) ? data : []));
+    }, []);
+
+    // Fetch batches for selected course
+    useEffect(() => {
+        if (selectedCourse) {
+            getBatches(selectedCourse.id).then((data) => setBatches(Array.isArray(data) ? data : []));
+            setSelectedBatch(null);
+            setFolders([]);
+            setSelectedFolder(null);
+            setFiles([]);
+        }
+    }, [selectedCourse]);
+
+    // Fetch folders for selected batch
+    useEffect(() => {
+        if (selectedBatch) {
+            getFolders(selectedBatch.id).then((data) => setFolders(Array.isArray(data) ? data : []));
+            setSelectedFolder(null);
+            setFiles([]);
+        }
+    }, [selectedBatch]);
+
+    // Fetch files for selected folder
+    useEffect(() => {
+        if (selectedFolder) {
+            getFiles(selectedFolder.id).then((data) => setFiles(Array.isArray(data) ? data : []));
+        }
+    }, [selectedFolder]);
+
+    return (
+        <div className="max-w-6xl mx-auto py-8">
+            <header className="mb-8">
+                <h1 className="text-4xl font-bold font-headline tracking-tighter">Tutor Dashboard</h1>
+                <p className="text-lg text-muted-foreground mt-2">View and manage your courses, batches, folders, and files.</p>
+            </header>
+
+            <section className="grid gap-6">
+                {/* Courses */}
+                <div>
+                    <h2 className="text-xl font-semibold mb-2">Courses</h2>
+                    <div className="flex gap-2 flex-wrap">
+                        {courses.map((course: any) => (
+                            <Button key={course.id} variant={selectedCourse?.id === course.id ? "default" : "outline"} onClick={() => setSelectedCourse(course)}>
+                                {course.title}
+                            </Button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Batches */}
+                {selectedCourse && (
+                    <div>
+                        <h2 className="text-xl font-semibold mb-2">Batches</h2>
+                        <div className="flex gap-2 flex-wrap">
+                            {batches.map((batch: any) => (
+                                <Button key={batch.id} variant={selectedBatch?.id === batch.id ? "default" : "outline"} onClick={() => setSelectedBatch(batch)}>
+                                    {batch.name}
+                                </Button>
+                            ))}
                         </div>
-                    </CardContent>
-                    <CardFooter className="flex justify-end gap-2">
-                        <Button variant="outline">View Submission</Button>
-                        <Button variant="destructive">
-                            <X className="mr-2 h-4 w-4" />
-                            Needs Revision
-                        </Button>
-                        <Button>
-                            <Check className="mr-2 h-4 w-4" />
-                            Approve
-                        </Button>
-                    </CardFooter>
-                </Card>
-            ))}
+                    </div>
+                )}
+
+                {/* Folders */}
+                {selectedBatch && (
+                    <div>
+                        <h2 className="text-xl font-semibold mb-2">Folders</h2>
+                        <div className="flex gap-2 flex-wrap">
+                            {folders.map((folder: any) => (
+                                <Button key={folder.id} variant={selectedFolder?.id === folder.id ? "default" : "outline"} onClick={() => setSelectedFolder(folder)}>
+                                    {folder.name}
+                                </Button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Files */}
+                {selectedFolder && (
+                    <div>
+                        <h2 className="text-xl font-semibold mb-2">Files</h2>
+                        <ul className="list-disc ml-5 text-sm">
+                            {files.map((file: any) => (
+                                <li key={file.id}>{file.name}</li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+            </section>
         </div>
-    </section>
-    </div>
-  );
+    );
 }

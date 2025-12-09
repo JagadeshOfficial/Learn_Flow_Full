@@ -10,6 +10,7 @@ export default function TutorLayout({
   return (
     <div className="flex min-h-screen bg-background">
       <TutorSidebar />
+      
       <div className="flex-grow flex flex-col ml-64">
         <TutorHeader />
         <main className="flex-grow p-8 bg-muted/30 overflow-y-auto">
