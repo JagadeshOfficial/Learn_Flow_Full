@@ -80,6 +80,12 @@ public class OtpService {
         return true;
     }
 
+    // Development helper: return the last OTP for an email (null if none)
+    public String getLastOtp(String email) {
+        Optional<OtpStorage> otpStorageOpt = otpStorageRepository.findByEmail(email);
+        return otpStorageOpt.map(OtpStorage::getOtp).orElse(null);
+    }
+
     private String generateOtp() {
         Random random = new Random();
         StringBuilder otp = new StringBuilder();

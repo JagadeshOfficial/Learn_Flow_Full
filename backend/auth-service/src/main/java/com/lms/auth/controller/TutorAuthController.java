@@ -8,6 +8,7 @@ import com.lms.auth.service.OtpService;
 import com.lms.auth.service.TutorService;
 import com.lms.auth.service.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -50,6 +51,9 @@ public class TutorAuthController {
 
     @Autowired
     private OtpService otpService;
+
+    @Value("${app.dev.enable-otp-debug:false}")
+    private boolean enableOtpDebug;
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
@@ -95,6 +99,28 @@ public class TutorAuthController {
             boolean verified = otpService.verifyOtp(request.getEmail(), request.getOtp());
             response.put("success", verified);
             response.put("message", "OTP verified successfully");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    // Development-only: retrieve last OTP for an email (useful when SMTP not configured)
+    @GetMapping("/debug/last-otp")
+    public ResponseEntity<Map<String, Object>> getLastOtp(@RequestParam("email") String email) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            if (!enableOtpDebug) {
+                response.put("success", false);
+                response.put("message", "Not enabled");
+                return ResponseEntity.status(403).body(response);
+            }
+
+            String otp = otpService.getLastOtp(email);
+            response.put("success", true);
+            response.put("otp", otp);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.put("success", false);

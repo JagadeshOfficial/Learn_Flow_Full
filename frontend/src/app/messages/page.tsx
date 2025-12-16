@@ -127,6 +127,7 @@ const INITIAL_MESSAGES: Message[] = [
     { id: 3, senderId: "me", text: "Looks good, just one comment on the variable naming.", time: "10:03 AM", status: "read", reactions: {}, isEdited: true, type: 'text' },
     { id: 4, senderId: 2, text: "Got it. I'll fix that quickly.", time: "10:05 AM", status: "read", reactions: { '❤': 1 }, type: 'text', threadCount: 2 },
     { id: 5, senderId: 2, text: "", time: "10:06 AM", status: "read", reactions: {}, type: 'voice', fileUrl: "audio.mp3" },
+    { id: 6, senderId: 2, text: "Group Sync scheduled for 10:00 AM.", time: "10:07 AM", status: "read", reactions: {}, type: 'text' },
 ];
 
 const ACTIVITIES: Activity[] = [
@@ -135,7 +136,7 @@ const ACTIVITIES: Activity[] = [
     { id: 3, user: "System", action: "alert", context: "Server maintenance scheduled for tonight", time: "Yesterday", timestamp: new Date(Date.now() - 86400000), read: true, type: 'alert' },
 ];
 
-export default function TeamsChatPage() {
+export default function GroupsChatPage() {
     const { toast } = useToast();
 
     // State
@@ -144,6 +145,15 @@ export default function TeamsChatPage() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputText, setInputText] = useState("");
     const [activeRail, setActiveRail] = useState('chat');
+
+    // Friendly labels for rails (so header shows readable text instead of raw id)
+    const RAIL_LABELS: Record<string, string> = {
+        activity: 'Activity',
+        chat: 'Chat',
+        teams: 'Groups',
+        calendar: 'Calendar',
+        files: 'Files'
+    };
 
     // Activity State
     const [activities, setActivities] = useState<Activity[]>(ACTIVITIES);
@@ -168,9 +178,9 @@ export default function TeamsChatPage() {
     // Calendar State
     const [date, setDate] = useState<Date | undefined>(new Date());
     const [events, setEvents] = useState([
-        { id: 1, title: 'Team Sync', time: '10:00 AM', duration: '1h', type: 'work', date: new Date() },
+    { id: 1, title: 'Group Sync', time: '10:00 AM', duration: '1h', type: 'work', date: new Date() },
         { id: 2, title: 'Lunch Break', time: '01:00 PM', duration: '1h', type: 'personal', date: new Date() },
-        { id: 3, title: 'Project Review', time: '03:00 PM', duration: '1.5h', type: 'work', date: new Date() },
+        { id: 3, title: 'Design Workshop', time: '03:00 PM', duration: '1.5h', type: 'work', date: new Date() },
     ]);
 
     // Files State
@@ -179,7 +189,7 @@ export default function TeamsChatPage() {
         { id: 2, name: 'Design_Mockup.png', type: 'image', size: '5.1 MB', date: 'Yesterday' },
         { id: 3, name: 'Q3_Report.docx', type: 'doc', size: '1.2 MB', date: 'Last Week' },
         { id: 4, name: 'Frontend_Architecture.pptx', type: 'ppt', size: '8.5 MB', date: '2 days ago' },
-        { id: 5, name: 'Team_Sync_Recording.mp4', type: 'video', size: '128 MB', date: '1 hour ago' },
+        { id: 5, name: 'Group_Sync_Recording.mp4', type: 'video', size: '128 MB', date: '1 hour ago' },
     ]);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -298,7 +308,7 @@ export default function TeamsChatPage() {
     };
 
     const handleScheduleMeeting = (type: 'general' | 'interview') => {
-        const title = meetingTitle || (type === 'interview' ? 'Interview Meeting' : 'Team Meeting');
+    const title = meetingTitle || (type === 'interview' ? 'Interview Meeting' : 'Group Meeting');
         const link = `https://meet.lms.com/${Math.random().toString(36).substring(7)}`;
 
         const meetingMsg: Message = {
@@ -333,7 +343,7 @@ export default function TeamsChatPage() {
                     {[
                         { id: 'activity', icon: Bell, label: 'Activity', badge: activities.filter(a => !a.read).length },
                         { id: 'chat', icon: MessageSquare, label: 'Chat' },
-                        { id: 'teams', icon: Users, label: 'Teams' },
+                        { id: 'teams', icon: Users, label: 'Groups' },
                         { id: 'calendar', icon: CalendarIcon, label: 'Calendar' },
                         { id: 'files', icon: FileText, label: 'Files' }
                     ].map(item => (
@@ -350,7 +360,7 @@ export default function TeamsChatPage() {
                             )}
                             <div className="relative">
                                 <item.icon className={cn("h-6 w-6 transition-transform", activeRail === item.id && "scale-110")} />
-                                {item.badge > 0 && (
+                                {(item.badge ?? 0) > 0 && (
                                     <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] text-white">
                                         {item.badge}
                                     </span>
@@ -370,7 +380,7 @@ export default function TeamsChatPage() {
                     <div className="px-4 py-3 border-b flex flex-col gap-3">
                         <div className="flex items-center justify-between">
                             <h1 className="text-xl font-bold capitalize flex items-center gap-2">
-                                {activeRail}
+                                {RAIL_LABELS[activeRail] || activeRail}
                             </h1>
                             <div className="flex gap-1">
                                 {/* New Chat / Group Trigger */}
@@ -384,7 +394,7 @@ export default function TeamsChatPage() {
                                         <DialogContent>
                                             <DialogHeader>
                                                 <DialogTitle>Create New</DialogTitle>
-                                                <DialogDescription>Start a new conversation or create a team group.</DialogDescription>
+                                                <DialogDescription>Start a new conversation or create a group.</DialogDescription>
                                             </DialogHeader>
                                             <Tabs defaultValue="chat">
                                                 <TabsList className="grid w-full grid-cols-2">
@@ -401,7 +411,7 @@ export default function TeamsChatPage() {
                                                 <TabsContent value="group" className="space-y-4 py-4">
                                                     <div className="space-y-2">
                                                         <label className="text-sm font-medium">Group Name:</label>
-                                                        <Input placeholder="e.g. Marketing Team" value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)} />
+                                                        <Input placeholder="e.g. Marketing Group" value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)} />
                                                     </div>
                                                     <div className="space-y-2">
                                                         <label className="text-sm font-medium">Add Members (Optional):</label>
@@ -437,7 +447,7 @@ export default function TeamsChatPage() {
                                         </DialogHeader>
                                         <Tabs defaultValue="general">
                                             <TabsList className="grid w-full grid-cols-2">
-                                                <TabsTrigger value="general">Team Meeting</TabsTrigger>
+                                                <TabsTrigger value="general">Group Meeting</TabsTrigger>
                                                 <TabsTrigger value="interview">Interview</TabsTrigger>
                                             </TabsList>
                                             <TabsContent value="general" className="space-y-4 py-4">
@@ -516,10 +526,10 @@ export default function TeamsChatPage() {
                             </div>
                         )}
 
-                        {/* TEAMS LIST - FIXING THE EMPTY STATE */}
+                        {/* GROUPS LIST - FIXING THE EMPTY STATE */}
                         {activeRail === 'teams' && (
                             <div className="p-2 space-y-1">
-                                <div className="px-2 pb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Your Teams</div>
+                                <div className="px-2 pb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Your Groups</div>
                                 {TEAMS.map(team => (
                                     <div key={team.id} className="space-y-0.5">
                                         <button
@@ -654,7 +664,7 @@ export default function TeamsChatPage() {
                                                 {/* Mock Events on grid */}
                                                 {i === 2 && (
                                                     <div className="absolute top-20 left-1 right-1 h-20 bg-blue-100 border-l-4 border-blue-600 rounded p-2 text-xs shadow-sm cursor-pointer hover:scale-105 transition-transform">
-                                                        <span className="font-bold text-blue-800">Team Sync</span>
+                                                        <span className="font-bold text-blue-800">Group Sync</span>
                                                         <div className="text-blue-600">10:00 - 11:00 AM</div>
                                                     </div>
                                                 )}

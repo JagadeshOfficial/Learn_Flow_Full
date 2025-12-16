@@ -18,6 +18,9 @@ public class EmailService {
 
     @Value("${spring.mail.username:noreply@learnflow.com}")
     private String fromEmail;
+    
+    @Value("${spring.mail.password:}")
+    private String mailPassword;
 
     public void sendOtp(String email, String otp) throws Exception {
         // Validate input
@@ -28,9 +31,12 @@ public class EmailService {
         // Always log the OTP for development/testing so it can be retrieved from logs
         logger.info("OTP for {}: {}", email, otp);
 
-        if (javaMailSender == null) {
-            logger.error("JavaMailSender is not configured. Cannot send OTP to {}", email);
-            throw new Exception("Email service not configured");
+        // If JavaMailSender is not configured or MAIL_PASSWORD is empty, don't attempt to send email.
+        // This makes local development easier: OTP is still generated and logged but won't fail the flow.
+        if (javaMailSender == null || mailPassword == null || mailPassword.isBlank()) {
+            logger.warn("JavaMailSender not configured or MAIL_PASSWORD missing. Skipping actual email send for {}. OTP will be logged for development.", email);
+            // Log OTP (already logged above) and return without throwing so callers receive success in dev.
+            return;
         }
 
         SimpleMailMessage message = new SimpleMailMessage();

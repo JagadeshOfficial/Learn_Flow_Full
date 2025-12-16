@@ -54,3 +54,10 @@ jwt:
 
 file:
   upload-dir: ./uploads
+
+# Development toggles
+app:
+  dev:
+    # When true, enables the /api/v1/tutor/debug/last-otp endpoint to retrieve the last generated OTP for an email.
+    # Useful for local development when SMTP is not configured. Keep false in production.
+    enable-otp-debug: false
