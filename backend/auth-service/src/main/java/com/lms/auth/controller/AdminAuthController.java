@@ -695,4 +695,49 @@ public class AdminAuthController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
+    /**
+     * Change admin password
+     * PUT /api/v1/auth/admin/change-password
+     */
+    @PutMapping("/change-password")
+    public ResponseEntity<?> changePassword(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @RequestBody java.util.Map<String, String> body) {
+        log.info("Change password request received");
+
+        try {
+            if (authorization == null || !authorization.startsWith("Bearer ")) {
+                throw new IllegalArgumentException("Missing or invalid authorization token");
+            }
+
+            String token = authorization.substring(7);
+            Integer adminId = jwtTokenProvider.getAdminIdFromToken(token);
+
+            String currentPassword = body.get("currentPassword");
+            String newPassword = body.get("newPassword");
+
+            if (currentPassword == null || newPassword == null) {
+                throw new IllegalArgumentException("Missing password fields");
+            }
+
+            adminAuthService.changePassword(adminId, currentPassword, newPassword);
+
+            var response = new java.util.HashMap<String, Object>();
+            response.put("success", true);
+            response.put("message", "Password changed successfully");
+            return ResponseEntity.ok(response);
+
+        } catch (IllegalArgumentException e) {
+            var error = new java.util.HashMap<String, Object>();
+            error.put("success", false);
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        } catch (Exception e) {
+            var error = new java.util.HashMap<String, Object>();
+            error.put("success", false);
+            error.put("message", "Internal server error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
 }
