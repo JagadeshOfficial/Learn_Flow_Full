@@ -1,6 +1,7 @@
 "use client"
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { Zap, ChevronDown, PanelLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -25,11 +26,15 @@ export function Header() {
       <div className="container mx-auto flex h-full items-center justify-between px-6">
 
         {/* LOGO */}
-        <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight text-slate-900">
-          <div className="h-9 w-9 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-blue-200 shadow-lg">
-            <Zap className="h-5 w-5 fill-current" />
-          </div>
-          LearnFlow
+        <Link href="/" className="flex items-center gap-2">
+          <Image
+            src="/logo.jpg"
+            alt="Intell Skill"
+            width={200}
+            height={50}
+            className="h-12 w-auto object-contain"
+            priority
+          />
         </Link>
 
         {/* DESKTOP NAV */}
@@ -87,11 +92,14 @@ export function Header() {
             <SheetContent side="left" className="w-72 z-[200]">
               <SheetHeader>
                 <SheetTitle>
-                  <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight text-slate-900">
-                    <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
-                      <Zap className="h-4 w-4 fill-current" />
-                    </div>
-                    LearnFlow
+                  <Link href="/" className="flex items-center gap-2">
+                    <Image
+                      src="/logo.jpg"
+                      alt="Intell Skill"
+                      width={150}
+                      height={40}
+                      className="h-10 w-auto object-contain"
+                    />
                   </Link>
                 </SheetTitle>
               </SheetHeader>

@@ -1,7 +1,8 @@
-import type {NextConfig} from 'next';
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   /* config options here */
+  output: 'standalone',
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -47,7 +48,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:8081/api/:path*',
+        destination: `${process.env.BACKEND_URL || 'http://localhost:8081'}/api/:path*`,
       },
     ];
   },
